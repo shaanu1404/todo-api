@@ -15,14 +15,7 @@ const host = server.address().address;
 app.get("/", async (req, res) => {
   try {
     const allTodos = await prisma.todo.findMany();
-    return res.status(200).json(
-      allTodos.map((todo) => {
-        return {
-          ...todo,
-          absoluteUrl: `${host}/${todo.id}`,
-        };
-      })
-    );
+    return res.status(200).json(allTodos);
   } catch (e) {
     return res.status(500).json({
       message: "Error occurred",
