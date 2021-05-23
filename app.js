@@ -15,20 +15,20 @@ const host = server.address().address;
 app.get("/", async (req, res) => {
   try {
     const allTodos = await prisma.todo.findMany();
+    return res.status(200).json(
+      allTodos.map((todo) => {
+        return {
+          ...todo,
+          absoluteUrl: `${host}/${todo.id}`,
+        };
+      })
+    );
   } catch (e) {
     return res.status(500).json({
       message: "Error occurred",
       errors: [e.message],
     });
   }
-  return res.status(200).json(
-    allTodos.map((todo) => {
-      return {
-        ...todo,
-        absoluteUrl: `${host}/${todo.id}`,
-      };
-    })
-  );
 });
 
 app.post("/", async (req, res) => {
@@ -54,11 +54,18 @@ app.post("/", async (req, res) => {
 
 app.get("/:id", async (req, res) => {
   const id = +req.params.id;
-  const todo = await prisma.todo.findUnique({ where: { id: id } });
-  if (!todo)
+  if (!id) {
     return res.status(404).json({
       message: "Not found.",
       errors: ["Invalid todo id."],
     });
+  }
+  const todo = await prisma.todo.findUnique({ where: { id: id } });
+  if (!todo) {
+    return res.status(404).json({
+      message: "Not found.",
+      errors: ["Invalid todo id."],
+    });
+  }
   return res.status(200).json(todo);
 });
