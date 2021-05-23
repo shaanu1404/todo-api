@@ -13,7 +13,14 @@ const server = app.listen(PORT, () => {});
 const host = server.address().address;
 
 app.get("/", async (req, res) => {
-  const allTodos = await prisma.todo.findMany();
+  try {
+    const allTodos = await prisma.todo.findMany();
+  } catch (e) {
+    return res.status(500).json({
+      message: "Error occurred",
+      errors: [e.message],
+    });
+  }
   return res.status(200).json(
     allTodos.map((todo) => {
       return {
